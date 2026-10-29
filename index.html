@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>SMS Kontrol Paneli</title>
+    <style>
+        body { background-color: #0f172a; color: #38bdf8; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .panel { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 350px; border: 1px solid #334155; }
+        h2 { text-align: center; color: #4ade80; }
+        label { display: block; margin-top: 15px; font-size: 14px; color: #e2e8f0; }
+        input { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; margin-top: 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-start { background: #22c55e; color: #fff; }
+        .btn-start:hover { background: #16a34a; }
+        .btn-stop { background: #ef4444; color: #fff; margin-top: 10px; }
+        .btn-stop:hover { background: #dc2626; }
+        #status { margin-top: 15px; text-align: center; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <h2>#4650 Web Panel</h2>
+        <label>Telefon Numarası (Başında 0 yok):</label>
+        <input type="text" id="tel_no" placeholder="5551234567" maxlength="10">
+        
+        <label>Adet (Boş bırakılırsa sonsuz):</label>
+        <input type="number" id="kere" placeholder="Sonsuz için boş bırak">
+        
+        <label>Aralık (Saniye):</label>
+        <input type="number" id="aralik" value="1">
+        
+        <button class="btn-start" onclick="islemBaslat()">BAŞLAT</button>
+        <button class="btn-stop" onclick="islemDurdur()">DURDUR</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function islemBaslat() {
+            const tel_no = document.getElementById('tel_no').value;
+            const kere = document.getElementById('kere').value || null;
+            const aralik = document.getElementById('aralik').value;
+
+            const res = await fetch('/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tel_no, kere, aralik })
+            });
+            const data = await res.json();
+            document.getElementById('status').innerText = data.message || data.error;
+            document.getElementById('status').style.color = res.ok ? '#4ade80' : '#ef4444';
+        }
+
+        async function islemDurdur() {
+            const res = await fetch('/stop', { method: 'POST' });
+            const data = await res.json();
+            document.getElementById('status').innerText = data.message;
+            document.getElementById('status').style.color = '#ef4444';
+        }
+    </script>
+</body>
+</html>
